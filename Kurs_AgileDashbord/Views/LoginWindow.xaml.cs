@@ -5,25 +5,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Kurs_AgileDashbord.Views
 {
-    /// <summary>
-    /// Окно авторизации — проверяет email и пароль из БД
-    /// </summary>
     public partial class LoginWindow : Window
     {
-        /// <summary>
-        /// Авторизованный пользователь (после успешного входа)
-        /// </summary>
         public User? LoggedInUser { get; private set; }
 
         public LoginWindow()
         {
             InitializeComponent();
-            EmailBox.Focus();
         }
 
         private async void OnLoginClick(object sender, RoutedEventArgs e)
         {
-            var email = EmailBox.Text?.Trim();
+            var email = EmailBox.Text.Trim();
             var password = PasswordBox.Password;
 
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
@@ -32,15 +25,30 @@ namespace Kurs_AgileDashbord.Views
                 return;
             }
 
+            ErrorText.Visibility = Visibility.Collapsed;
+
             try
             {
                 using var db = new AgileBoardContext();
-                var user = await db.Users.FirstOrDefaultAsync(u =>
-                    u.Email == email && u.PasswordHash == password);
+                var user = await db.Users
+                    .FirstOrDefaultAsync(u => u.Email == email && u.PasswordHash == password);
 
                 if (user == null)
                 {
                     ShowError("Неверный email или пароль");
+                    return;
+                }
+
+                // Проверяем статус аккаунта
+                if (user.Status == "Pending")
+                {
+                    ShowError("Ваша заявка ещё не подтверждена администратором");
+                    return;
+                }
+
+                if (user.Status == "Rejected")
+                {
+                    ShowError("Ваша заявка отклонена. Обратитесь к администратору.");
                     return;
                 }
 
@@ -51,6 +59,13 @@ namespace Kurs_AgileDashbord.Views
             {
                 ShowError($"Ошибка подключения: {ex.Message}");
             }
+        }
+
+        private void OnRegisterClick(object sender, RoutedEventArgs e)
+        {
+            var registerWindow = new RegisterWindow { Owner = this };
+            registerWindow.ShowDialog();
+            // После закрытия окна регистрации — просто возвращаемся к форме входа
         }
 
         private void OnQuickLoginAdmin(object sender, RoutedEventArgs e)
@@ -65,9 +80,9 @@ namespace Kurs_AgileDashbord.Views
             PasswordBox.Password = "user123";
         }
 
-        private void ShowError(string text)
+        private void ShowError(string message)
         {
-            ErrorText.Text = text;
+            ErrorText.Text = message;
             ErrorText.Visibility = Visibility.Visible;
         }
     }

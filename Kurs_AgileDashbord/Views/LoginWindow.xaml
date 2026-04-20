@@ -49,7 +49,14 @@
                     Style="{StaticResource MaterialDesignRaisedButton}"
                     materialDesign:ButtonAssist.CornerRadius="8"
                     HorizontalAlignment="Stretch" Height="44"
-                    Click="OnLoginClick" Margin="0,8,0,0"/>
+                    Click="OnLoginClick" Margin="0,8,0,8"/>
+
+            <!-- Регистрация -->
+            <Button Content="Нет аккаунта? Подать заявку"
+                    Style="{StaticResource MaterialDesignFlatButton}"
+                    Foreground="#888" HorizontalAlignment="Center"
+                    Click="OnRegisterClick" Margin="0,0,0,0"/>
+
 
             <!-- Подсказка -->
             <Border Background="#2D2D44" CornerRadius="8" Padding="12" Margin="0,24,0,0">

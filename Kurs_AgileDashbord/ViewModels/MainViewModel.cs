@@ -81,6 +81,10 @@ namespace Kurs_AgileDashbord.ViewModels
         [ObservableProperty]
         private int _teamMembersCount;
 
+        // Число ожидающих заявок — показывается в шапке у администратора
+        [ObservableProperty]
+        private int _pendingUsersCount;
+
         public MainViewModel() { }
 
         public MainViewModel(User currentUser)
@@ -111,8 +115,25 @@ namespace Kurs_AgileDashbord.ViewModels
                 TeamMembersCount = users.Count;
                 ActiveSprintsCount = await db.Sprints.CountAsync(s => s.IsActive);
 
+                // Заявки на регистрацию — только для администратора
+                if (IsAdmin)
+                    PendingUsersCount = await db.Users.CountAsync(u => u.Status == "Pending");
+
                 if (SelectedProject == null && Projects.Count > 0)
-                    SelectedProject = Projects[0];
+                {
+                    // Выбираем проект с наибольшим числом задач (не первый по алфавиту)
+                    var projectIds = projects.Select(p => p.ProjectID).ToList();
+                    var bestProjectId = await db.Tasks
+                        .Where(t => projectIds.Contains(t.ProjectID))
+                        .GroupBy(t => t.ProjectID)
+                        .OrderByDescending(g => g.Count())
+                        .Select(g => (int?)g.Key)
+                        .FirstOrDefaultAsync();
+
+                    SelectedProject = bestProjectId.HasValue
+                        ? Projects.FirstOrDefault(p => p.ProjectID == bestProjectId.Value) ?? Projects[0]
+                        : Projects[0];
+                }
                 else
                     await LoadSprintsAndTasksAsync();
             }
@@ -393,6 +414,16 @@ namespace Kurs_AgileDashbord.ViewModels
         {
             CurrentView = "Reports";
             await LoadReportsAsync();
+        }
+
+        [RelayCommand]
+        private async Task OpenPendingUsers()
+        {
+            var dialog = new Views.PendingUsersDialog();
+            dialog.ShowDialog();
+            // Обновляем счётчик после закрытия диалога
+            using var db = new AgileBoardContext();
+            PendingUsersCount = await db.Users.CountAsync(u => u.Status == "Pending");
         }
 
         private static string GetStatusDisplayName(string status) => status switch

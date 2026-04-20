@@ -49,6 +49,7 @@ namespace Kurs_AgileDashbord.Data
                 entity.Property(e => e.AvatarColor).HasMaxLength(7);
                 entity.Property(e => e.PasswordHash).HasMaxLength(256);
                 entity.Property(e => e.IsAdmin).HasDefaultValue(false);
+                entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Active");
             });
 
             // Проекты — верхний уровень иерархии, группирует спринты и задачи

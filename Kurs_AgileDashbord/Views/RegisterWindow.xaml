@@ -1,0 +1,82 @@
+<Window x:Class="Kurs_AgileDashbord.Views.RegisterWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="AgileBoard — Регистрация"
+        Height="620" Width="440"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Style="{StaticResource MaterialDesignWindow}"
+        Background="#1A1A2E"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}">
+
+    <Grid>
+        <Border Background="#16213E" CornerRadius="16" Margin="24" Padding="32">
+            <StackPanel>
+                <!-- Заголовок -->
+                <TextBlock Text="📝" FontSize="36" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                <TextBlock Text="Регистрация" FontSize="24" FontWeight="Bold"
+                           HorizontalAlignment="Center" Foreground="#7C4DFF" Margin="0,0,0,4"/>
+                <TextBlock Text="Заявка будет рассмотрена администратором"
+                           FontSize="12" HorizontalAlignment="Center"
+                           Foreground="#888" Margin="0,0,0,24"/>
+
+                <!-- Полное имя -->
+                <TextBox x:Name="FullNameBox"
+                         materialDesign:HintAssist.Hint="Полное имя *"
+                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                         Margin="0,0,0,16"/>
+
+                <!-- Email -->
+                <TextBox x:Name="EmailBox"
+                         materialDesign:HintAssist.Hint="Email *"
+                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                         Margin="0,0,0,16"/>
+
+                <!-- Пароль -->
+                <PasswordBox x:Name="PasswordBox"
+                             materialDesign:HintAssist.Hint="Пароль *"
+                             Style="{StaticResource MaterialDesignOutlinedPasswordBox}"
+                             Margin="0,0,0,16"/>
+
+                <!-- Подтверждение пароля -->
+                <PasswordBox x:Name="ConfirmPasswordBox"
+                             materialDesign:HintAssist.Hint="Подтвердить пароль *"
+                             Style="{StaticResource MaterialDesignOutlinedPasswordBox}"
+                             Margin="0,0,0,16"/>
+
+                <!-- Роль -->
+                <ComboBox x:Name="RoleCombo"
+                          materialDesign:HintAssist.Hint="Роль в команде"
+                          Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                          Margin="0,0,0,24">
+                    <ComboBoxItem Content="Developer" IsSelected="True"/>
+                    <ComboBoxItem Content="Frontend Dev"/>
+                    <ComboBoxItem Content="Backend Dev"/>
+                    <ComboBoxItem Content="QA Engineer"/>
+                    <ComboBoxItem Content="DevOps"/>
+                    <ComboBoxItem Content="Team Lead"/>
+                    <ComboBoxItem Content="Designer"/>
+                </ComboBox>
+
+                <!-- Сообщение об ошибке -->
+                <TextBlock x:Name="ErrorText" Foreground="#FF5252"
+                           TextWrapping="Wrap" Margin="0,0,0,12"
+                           Visibility="Collapsed" FontSize="12"/>
+
+                <!-- Кнопка регистрации -->
+                <Button Content="Отправить заявку"
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Background="#7C4DFF" Foreground="White"
+                        materialDesign:ButtonAssist.CornerRadius="8"
+                        Height="44" FontSize="15" FontWeight="Medium"
+                        Click="OnRegisterClick" Margin="0,0,0,12"/>
+
+                <!-- Назад -->
+                <Button Content="← Назад к входу"
+                        Style="{StaticResource MaterialDesignFlatButton}"
+                        Foreground="#888" Click="OnBackClick"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

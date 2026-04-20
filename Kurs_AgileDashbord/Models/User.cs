@@ -12,6 +12,8 @@ namespace Kurs_AgileDashbord.Models
         public string AvatarColor { get; set; } = "#7C4DFF";
         public string? PasswordHash { get; set; }
         public bool IsAdmin { get; set; } = false;
+        // Статус аккаунта: Active — подтверждён, Pending — ожидает подтверждения, Rejected — отклонён
+        public string Status { get; set; } = "Active";
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         // Навигационные свойства
