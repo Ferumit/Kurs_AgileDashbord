@@ -99,7 +99,7 @@
                     <!-- Аватар пользователя + кнопка выхода -->
                     <Button Grid.Column="7" x:Name="UserAvatarButton"
                             Style="{StaticResource MaterialDesignFlatButton}"
-                            Padding="8,4" Margin="8,0,0,0"
+                            Padding="8,8" Margin="8,0,0,0" Height="Auto"
                             ToolTip="Профиль и выход"
                             Click="OnUserAvatarClick">
                         <StackPanel Orientation="Horizontal">

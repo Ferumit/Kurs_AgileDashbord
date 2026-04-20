@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="AgileBoard — Регистрация"
-        Height="620" Width="440"
+        SizeToContent="Height" MinHeight="620" Width="440"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         Style="{StaticResource MaterialDesignWindow}"
@@ -11,7 +11,7 @@
         TextElement.Foreground="{DynamicResource MaterialDesignBody}">
 
     <Grid>
-        <Border Background="#16213E" CornerRadius="16" Margin="24" Padding="32">
+        <Border Background="#16213E" CornerRadius="16" Margin="24" Padding="32,32,32,48">
             <StackPanel>
                 <!-- Заголовок -->
                 <TextBlock Text="📝" FontSize="36" HorizontalAlignment="Center" Margin="0,0,0,8"/>

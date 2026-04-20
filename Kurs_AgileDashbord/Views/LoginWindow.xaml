@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="AgileBoard — Вход в систему"
-        Height="560" Width="420"
+        SizeToContent="Height" MinHeight="560" Width="420"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         Style="{StaticResource MaterialDesignWindow}"
