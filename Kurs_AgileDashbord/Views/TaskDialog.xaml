@@ -1,0 +1,91 @@
+<Window x:Class="Kurs_AgileDashbord.Views.TaskDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="Новая задача"
+        Height="520" Width="500"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Style="{StaticResource MaterialDesignWindow}"
+        Background="{DynamicResource MaterialDesignPaper}"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <TextBlock Grid.Row="0" Text="Создание задачи" FontSize="22" FontWeight="Bold" Margin="0,0,0,16"
+                   Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+
+        <!-- Название -->
+        <TextBox Grid.Row="1" x:Name="TitleBox"
+                 materialDesign:HintAssist.Hint="Название задачи *"
+                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                 Margin="0,0,0,12" FontSize="14"/>
+
+        <!-- Описание -->
+        <TextBox Grid.Row="2" x:Name="DescriptionBox"
+                 materialDesign:HintAssist.Hint="Описание"
+                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                 TextWrapping="Wrap" AcceptsReturn="True" Height="80"
+                 Margin="0,0,0,12"/>
+
+        <!-- Проект -->
+        <ComboBox Grid.Row="3" x:Name="ProjectCombo"
+                  materialDesign:HintAssist.Hint="Проект *"
+                  Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                  DisplayMemberPath="ProjectName"
+                  SelectionChanged="OnProjectChanged"
+                  Margin="0,0,0,12"/>
+
+        <!-- Спринт -->
+        <ComboBox Grid.Row="4" x:Name="SprintCombo"
+                  materialDesign:HintAssist.Hint="Спринт (необязательно)"
+                  Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                  DisplayMemberPath="SprintName"
+                  Margin="0,0,0,12"/>
+
+        <!-- Приоритет + Исполнитель -->
+        <Grid Grid.Row="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ComboBox Grid.Column="0" x:Name="PriorityCombo"
+                      materialDesign:HintAssist.Hint="Приоритет"
+                      Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                      Margin="0,0,0,12">
+                <ComboBoxItem Content="Низкий" Tag="Low"/>
+                <ComboBoxItem Content="Средний" Tag="Medium" IsSelected="True"/>
+                <ComboBoxItem Content="Высокий" Tag="High"/>
+                <ComboBoxItem Content="Критический" Tag="Critical"/>
+            </ComboBox>
+            <ComboBox Grid.Column="2" x:Name="ExecutorCombo"
+                      materialDesign:HintAssist.Hint="Исполнитель"
+                      Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                      DisplayMemberPath="FullName"
+                      Margin="0,0,0,12"/>
+        </Grid>
+
+        <!-- Автор (скрытый, берём первого PM) -->
+
+        <!-- Кнопки -->
+        <StackPanel Grid.Row="8" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button Content="Отмена" Style="{StaticResource MaterialDesignFlatButton}"
+                    Click="OnCancelClick" Margin="0,0,8,0"/>
+            <Button Content="Создать" Style="{StaticResource MaterialDesignRaisedButton}"
+                    Click="OnCreateClick"
+                    materialDesign:ButtonAssist.CornerRadius="8"/>
+        </StackPanel>
+    </Grid>
+</Window>

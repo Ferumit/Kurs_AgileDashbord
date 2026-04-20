@@ -1,0 +1,25 @@
+<Application x:Class="Kurs_AgileDashbord.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:converters="clr-namespace:Kurs_AgileDashbord.Converters"
+             >
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Material Design тема (тёмная) -->
+                <materialDesign:BundledTheme BaseTheme="Dark" PrimaryColor="DeepPurple" SecondaryColor="Lime" />
+                <!-- Material Design стили -->
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Конвертеры -->
+            <converters:StatusToColorConverter x:Key="StatusToColorConverter" />
+            <converters:PriorityToColorConverter x:Key="PriorityToColorConverter" />
+            <converters:HexToColorBrushConverter x:Key="HexToColorBrushConverter" />
+            <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+            <converters:StringToKanbanVisibilityConverter x:Key="StringToKanbanVisibilityConverter" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
