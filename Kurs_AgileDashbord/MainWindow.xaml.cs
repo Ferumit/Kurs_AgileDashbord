@@ -64,12 +64,25 @@ namespace Kurs_AgileDashbord
         {
             UserPopup.IsOpen = false;
 
-            var loginWindow = new LoginWindow();
-            loginWindow.Show();
+            // Переключаем режим, чтобы приложение не закрылось вместе с главным окном
+            Application.Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
-            // Переключаем режим чтобы приложение не закрылось когда закроем MainWindow
-            Application.Current.ShutdownMode = System.Windows.ShutdownMode.OnLastWindowClose;
-            Close();
+            var loginWindow = new LoginWindow();
+            this.Close(); // закрываем текущий сеанс (окно)
+
+            // Важно использовать ShowDialog(), так как внутри окна делается DialogResult = true
+            if (loginWindow.ShowDialog() == true && loginWindow.LoggedInUser != null)
+            {
+                Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+                var mainWindow = new MainWindow(loginWindow.LoggedInUser);
+                Application.Current.MainWindow = mainWindow;
+                mainWindow.Show();
+            }
+            else
+            {
+                // Если пользователь просто закрыл окно входа (крестиком)
+                Application.Current.Shutdown();
+            }
         }
     }
 }
