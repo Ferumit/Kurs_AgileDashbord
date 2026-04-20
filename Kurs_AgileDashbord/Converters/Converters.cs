@@ -115,4 +115,14 @@ namespace Kurs_AgileDashbord.Converters
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             => throw new NotImplementedException();
     }
+
+    // Отображает роль пользователя: true → "Администратор", false → "Пользователь"
+    public class BoolToRoleConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            => value is bool b && b ? "Администратор" : "Пользователь";
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => throw new NotImplementedException();
+    }
 }

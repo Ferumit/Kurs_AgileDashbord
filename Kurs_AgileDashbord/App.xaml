@@ -21,6 +21,8 @@
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
             <converters:StringToKanbanVisibilityConverter x:Key="StringToKanbanVisibilityConverter" />
             <converters:ZeroToCollapsedConverter x:Key="ZeroToCollapsedConverter" />
+            <converters:BoolToRoleConverter x:Key="BoolToRoleConverter" />
+
 
         </ResourceDictionary>
     </Application.Resources>

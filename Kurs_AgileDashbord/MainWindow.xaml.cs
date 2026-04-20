@@ -53,5 +53,23 @@ namespace Kurs_AgileDashbord
                 }
             }
         }
+        // Открывает всплывающее меню профиля
+        private void OnUserAvatarClick(object sender, RoutedEventArgs e)
+        {
+            UserPopup.IsOpen = true;
+        }
+
+        // Выход из аккаунта — закрываем главное окно и показываем экран входа заново
+        private void OnLogoutClick(object sender, RoutedEventArgs e)
+        {
+            UserPopup.IsOpen = false;
+
+            var loginWindow = new LoginWindow();
+            loginWindow.Show();
+
+            // Переключаем режим чтобы приложение не закрылось когда закроем MainWindow
+            Application.Current.ShutdownMode = System.Windows.ShutdownMode.OnLastWindowClose;
+            Close();
+        }
     }
 }
