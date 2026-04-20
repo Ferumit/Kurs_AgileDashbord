@@ -3,17 +3,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Kurs_AgileDashbord.Data
 {
-    /// <summary>
-    /// Автоматическая инициализация БД.
-    /// Поддерживает 2 режима:
-    ///   1. LocalDB (localdb)\MSSQLLocalDB — для запуска на любом ПК с Visual Studio / SQL Server Express
-    ///   2. localhost (полный SQL Server) — для разработки
-    /// </summary>
+    // Отвечает за первый запуск: находит SQL Server, создаёт базу данных и заполняет тестовыми данными.
+    // Поддерживает три варианта подключения — пробует по очереди пока один не сработает.
     public static class DatabaseInitializer
     {
         private const string DbName = "AgileBoardDB";
 
-        // Строки подключения в порядке приоритета
+        // Порядок поиска SQL Server: сначала LocalDB (он есть на любом ПК с Visual Studio),
+        // потом обычный localhost, потом Express-версия
         private static readonly string[] ConnectionStrings =
         [
             $@"Server=(localdb)\MSSQLLocalDB;Database={DbName};Integrated Security=True;TrustServerCertificate=True;",
@@ -21,10 +18,8 @@ namespace Kurs_AgileDashbord.Data
             $@"Server=.\SQLEXPRESS;Database={DbName};Trusted_Connection=True;TrustServerCertificate=True;",
         ];
 
-        /// <summary>
-        /// Найти рабочую строку подключения и инициализировать БД если нужно.
-        /// Возвращает рабочую строку подключения.
-        /// </summary>
+        // Возвращает рабочую строку подключения.
+        // Если база не существует — создаёт её и наполняет тестовыми данными.
         public static string InitializeAndGetConnectionString()
         {
             foreach (var connStr in ConnectionStrings)
@@ -35,21 +30,19 @@ namespace Kurs_AgileDashbord.Data
                     using var conn = new SqlConnection(masterConn);
                     conn.Open();
 
-                    // Проверяем существует ли БД
                     bool dbExists;
                     using (var cmd = new SqlCommand($"SELECT COUNT(1) FROM sys.databases WHERE name = '{DbName}'", conn))
                         dbExists = (int)cmd.ExecuteScalar() > 0;
 
                     if (!dbExists)
                     {
-                        // Создаём БД
                         using var cmd = new SqlCommand($"CREATE DATABASE [{DbName}]", conn);
                         cmd.ExecuteNonQuery();
                     }
 
                     conn.Close();
 
-                    // Проверяем и создаём схему + данные
+                    // Создаём таблицы через EF если их ещё нет, затем проверяем наличие данных
                     var optionsBuilder = new DbContextOptionsBuilder<AgileBoardContext>();
                     optionsBuilder.UseSqlServer(connStr, opts => opts.EnableRetryOnFailure(1));
                     using var db = new AgileBoardContext(optionsBuilder.Options);
@@ -62,7 +55,6 @@ namespace Kurs_AgileDashbord.Data
                 }
                 catch
                 {
-                    // Попробуем следующую строку
                     continue;
                 }
             }
@@ -73,15 +65,13 @@ namespace Kurs_AgileDashbord.Data
                 "• SQL Server LocalDB (входит в состав Visual Studio)\n" +
                 "• SQL Server Express\n" +
                 "• SQL Server (localhost)\n\n" +
-                "Скачать: https://aka.ms/sqllocaldb");
+                "Скачать LocalDB: https://aka.ms/sqllocaldb");
         }
 
-        /// <summary>
-        /// Заполнение тестовыми данными
-        /// </summary>
+        // Начальные данные для демонстрации приложения:
+        // 7 пользователей с разными ролями, 3 проекта, 5 спринтов, 16 задач и несколько комментариев
         private static void SeedData(AgileBoardContext db)
         {
-            // Пользователи
             var users = new[]
             {
                 new Models.User { FullName = "Иванов Алексей", Email = "ivanov@company.kz", Role = "Team Lead", AvatarColor = "#7C4DFF", PasswordHash = "admin123", IsAdmin = true },
@@ -95,7 +85,6 @@ namespace Kurs_AgileDashbord.Data
             db.Users.AddRange(users);
             db.SaveChanges();
 
-            // Проекты
             var projects = new[]
             {
                 new Models.Project { ProjectName = "Веб-портал компании", ProjectCode = "WEB", Description = "Корпоративный портал" },
@@ -105,7 +94,6 @@ namespace Kurs_AgileDashbord.Data
             db.Projects.AddRange(projects);
             db.SaveChanges();
 
-            // Спринты
             var sprints = new[]
             {
                 new Models.Sprint { ProjectID = projects[0].ProjectID, SprintName = "Спринт 1 - Основа", StartDate = DateTime.Now.AddDays(-60), EndDate = DateTime.Now.AddDays(-30), IsActive = false },
@@ -117,7 +105,6 @@ namespace Kurs_AgileDashbord.Data
             db.Sprints.AddRange(sprints);
             db.SaveChanges();
 
-            // Задачи
             var tasks = new Models.TaskItem[]
             {
                 new() { Title = "Интеграция с Telegram Bot", ProjectID = projects[0].ProjectID, SprintID = sprints[2].SprintID, AuthorID = users[0].UserID, ExecutorID = users[2].UserID, Priority = "Medium", Status = "To Do" },
@@ -140,7 +127,6 @@ namespace Kurs_AgileDashbord.Data
             db.Tasks.AddRange(tasks);
             db.SaveChanges();
 
-            // Комментарии
             var comments = new Models.Comment[]
             {
                 new() { TaskID = tasks[0].TaskID, UserID = users[0].UserID, Text = "Нужен токен бота от @BotFather" },

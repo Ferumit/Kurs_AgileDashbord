@@ -10,9 +10,11 @@ namespace Kurs_AgileDashbord
         {
             base.OnStartup(e);
 
-            // Не закрывать приложение когда LoginWindow закрывается
+            // Пока открыт LoginWindow — приложение не закрываем автоматически.
+            // Переключимся на OnMainWindowClose после успешного входа.
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
+            // Глобальный перехват ошибок — чтобы приложение не падало без объяснений
             DispatcherUnhandledException += (s, args) =>
             {
                 MessageBox.Show($"Ошибка: {args.Exception.Message}\n\n{args.Exception.InnerException?.Message}",
@@ -20,7 +22,7 @@ namespace Kurs_AgileDashbord
                 args.Handled = true;
             };
 
-            // === Инициализация базы данных ===
+            // Ищем доступный SQL Server и создаём БД если её нет
             try
             {
                 var connStr = DatabaseInitializer.InitializeAndGetConnectionString();
@@ -34,7 +36,7 @@ namespace Kurs_AgileDashbord
                 return;
             }
 
-            // === Авторизация ===
+            // Показываем окно входа. Главное окно откроется только после успешной авторизации.
             var loginWindow = new LoginWindow();
             if (loginWindow.ShowDialog() == true && loginWindow.LoggedInUser != null)
             {

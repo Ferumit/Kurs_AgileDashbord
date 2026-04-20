@@ -3,22 +3,21 @@ using Kurs_AgileDashbord.Models;
 
 namespace Kurs_AgileDashbord.Data
 {
-    /// <summary>
-    /// Контекст базы данных Entity Framework Core.
-    /// Подключение к MS SQL Server (AgileBoardDB).
-    /// </summary>
+    // Главный класс для работы с базой данных через Entity Framework.
+    // Хранит все таблицы и описывает их структуру.
     public class AgileBoardContext : DbContext
     {
+        // Строка подключения устанавливается один раз при старте приложения
+        // через DatabaseInitializer, который сам находит подходящий SQL Server
         private static string? _connectionString;
 
-        /// <summary>
-        /// Установить строку подключения (вызывается из DatabaseInitializer при старте app)
-        /// </summary>
         public static void SetConnectionString(string connStr) => _connectionString = connStr;
 
         public AgileBoardContext() { }
 
         public AgileBoardContext(DbContextOptions<AgileBoardContext> options) : base(options) { }
+
+        // Таблицы базы данных
         public DbSet<User> Users { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<Sprint> Sprints { get; set; }
@@ -30,6 +29,7 @@ namespace Kurs_AgileDashbord.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
+                // Если строка подключения не задана явно — используем LocalDB по умолчанию
                 var connStr = _connectionString
                     ?? @"Server=(localdb)\MSSQLLocalDB;Database=AgileBoardDB;Integrated Security=True;TrustServerCertificate=True;";
                 optionsBuilder.UseSqlServer(connStr, options => options.EnableRetryOnFailure());
@@ -38,7 +38,7 @@ namespace Kurs_AgileDashbord.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // === Users ===
+            // Пользователи — хранит данные аккаунтов, роли и пароли
             modelBuilder.Entity<User>(entity =>
             {
                 entity.ToTable("Users");
@@ -51,7 +51,7 @@ namespace Kurs_AgileDashbord.Data
                 entity.Property(e => e.IsAdmin).HasDefaultValue(false);
             });
 
-            // === Projects ===
+            // Проекты — верхний уровень иерархии, группирует спринты и задачи
             modelBuilder.Entity<Project>(entity =>
             {
                 entity.ToTable("Projects");
@@ -60,7 +60,7 @@ namespace Kurs_AgileDashbord.Data
                 entity.Property(e => e.ProjectCode).HasMaxLength(10).IsRequired();
             });
 
-            // === Sprints ===
+            // Спринты — итерации внутри проекта с датами начала и конца
             modelBuilder.Entity<Sprint>(entity =>
             {
                 entity.ToTable("Sprints");
@@ -72,7 +72,8 @@ namespace Kurs_AgileDashbord.Data
                       .HasForeignKey(e => e.ProjectID);
             });
 
-            // === Tasks (TaskItem) ===
+            // Задачи — основная сущность Kanban-доски
+            // Связана с проектом, спринтом, автором и исполнителем
             modelBuilder.Entity<TaskItem>(entity =>
             {
                 entity.ToTable("Tasks");
@@ -90,11 +91,13 @@ namespace Kurs_AgileDashbord.Data
                       .HasForeignKey(e => e.SprintID)
                       .IsRequired(false);
 
+                // Автор — кто создал задачу (при удалении пользователя задача остаётся)
                 entity.HasOne(e => e.Author)
                       .WithMany(u => u.AuthoredTasks)
                       .HasForeignKey(e => e.AuthorID)
                       .OnDelete(DeleteBehavior.Restrict);
 
+                // Исполнитель — кто выполняет (может быть не назначен)
                 entity.HasOne(e => e.Executor)
                       .WithMany(u => u.AssignedTasks)
                       .HasForeignKey(e => e.ExecutorID)
@@ -102,7 +105,7 @@ namespace Kurs_AgileDashbord.Data
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // === Comments ===
+            // Комментарии к задачам — при удалении задачи комментарии тоже удаляются
             modelBuilder.Entity<Comment>(entity =>
             {
                 entity.ToTable("Comments");
@@ -120,7 +123,7 @@ namespace Kurs_AgileDashbord.Data
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // === TaskHistory ===
+            // История изменений статусов — заполняется через триггер в БД
             modelBuilder.Entity<TaskHistory>(entity =>
             {
                 entity.ToTable("TaskHistory");
