@@ -73,7 +73,7 @@ ORM:         Entity Framework Core 9
 
 ```bash
 # Требования: .NET 9.0 SDK, SQL Server или LocalDB
-git clone https://github.com/YOUR_USERNAME/Kurs_AgileDashbord.git
+git clone https://github.com/Ferumit/Kurs_AgileDashbord.git
 cd Kurs_AgileDashbord/Kurs_AgileDashbord
 dotnet run
 ```
