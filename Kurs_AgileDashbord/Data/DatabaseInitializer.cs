@@ -100,8 +100,12 @@ namespace Kurs_AgileDashbord.Data
                 using var db = new AgileBoardContext(opts);
                 db.Database.EnsureCreated();
 
+                // Добавляем колонку Status если её нет — для случая когда БД создана старой версией приложения
+                EnsureColumnsExist(connStr);
+
                 if (!db.Users.Any())
                     SeedData(db);
+
 
                 return true;
             }
@@ -111,7 +115,32 @@ namespace Kurs_AgileDashbord.Data
             }
         }
 
+        // Добавляет новые колонки к существующей БД (для пользователей обновившихся со старой версии)
+        private static void EnsureColumnsExist(string connStr)
+        {
+            try
+            {
+                using var conn = new SqlConnection(connStr);
+                conn.Open();
+
+                // Добавляем Status если ещё нет — безопасная операция, не трогает данные
+                var sql = @"
+                    IF NOT EXISTS (
+                        SELECT 1 FROM sys.columns 
+                        WHERE object_id = OBJECT_ID('dbo.Users') AND name = 'Status'
+                    )
+                    BEGIN
+                        ALTER TABLE dbo.Users ADD [Status] NVARCHAR(20) NOT NULL DEFAULT 'Active';
+                    END";
+
+                using var cmd = new SqlCommand(sql, conn);
+                cmd.ExecuteNonQuery();
+            }
+            catch { /* не критично — работаем с тем что есть */ }
+        }
+
         private static string? ReadServerFromSettings()
+
         {
             try
             {
