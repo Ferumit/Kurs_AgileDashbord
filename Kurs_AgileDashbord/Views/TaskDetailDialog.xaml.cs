@@ -11,41 +11,57 @@ namespace Kurs_AgileDashbord.Views
     /// </summary>
     public partial class TaskDetailDialog : Window
     {
-        public TaskDetailDialog(TaskItem task)
+        private readonly TaskItem _task;
+        private readonly User _currentUser;
+
+        public TaskDetailDialog(TaskItem task, User currentUser)
         {
             InitializeComponent();
-            LoadTaskDetails(task);
+            _task = task;
+            _currentUser = currentUser;
+
+            // Скрываем кнопку удаления, если не автор и не админ
+            if (!_currentUser.IsAdmin && _currentUser.UserID != _task.AuthorID)
+            {
+                DeleteTaskButton.Visibility = Visibility.Collapsed;
+            }
+
+            LoadTaskDetails();
         }
 
-        private async void LoadTaskDetails(TaskItem task)
+        private async void LoadTaskDetails()
         {
             // Заголовок
-            TitleBlock.Text = task.Title;
-            DescriptionBlock.Text = task.Description ?? "Нет описания";
+            TitleBlock.Text = _task.Title;
+            DescriptionBlock.Text = _task.Description ?? "Нет описания";
 
             // Приоритет
-            PriorityText.Text = task.PriorityDisplayName;
-            PriorityBadge.Background = new SolidColorBrush(GetPriorityColor(task.Priority));
+            PriorityText.Text = _task.PriorityDisplayName;
+            PriorityBadge.Background = new SolidColorBrush(GetPriorityColor(_task.Priority));
 
             // Статус
-            StatusText.Text = task.StatusDisplayName;
-            StatusBadge.Background = new SolidColorBrush(GetStatusColor(task.Status));
+            StatusText.Text = _task.StatusDisplayName;
+            StatusBadge.Background = new SolidColorBrush(GetStatusColor(_task.Status));
 
             // Информация
-            ProjectBlock.Text = task.Project?.ToString() ?? "—";
-            SprintBlock.Text = task.Sprint?.SprintName ?? "Бэклог";
-            AuthorBlock.Text = task.Author?.FullName ?? "—";
-            ExecutorBlock.Text = task.Executor?.FullName ?? "Не назначен";
-            CreatedAtBlock.Text = task.CreatedAt.ToString("dd.MM.yyyy HH:mm");
-            CompletedAtBlock.Text = task.CompletedAt?.ToString("dd.MM.yyyy HH:mm") ?? "—";
+            ProjectBlock.Text = _task.Project?.ToString() ?? "—";
+            SprintBlock.Text = _task.Sprint?.SprintName ?? "Бэклог";
+            AuthorBlock.Text = _task.Author?.FullName ?? "—";
+            ExecutorBlock.Text = _task.Executor?.FullName ?? "Не назначен";
+            CreatedAtBlock.Text = _task.CreatedAt.ToString("dd.MM.yyyy HH:mm");
+            CompletedAtBlock.Text = _task.CompletedAt?.ToString("dd.MM.yyyy HH:mm") ?? "—";
 
-            // Загружаем комментарии из БД
+            await RefreshCommentsAsync();
+        }
+
+        private async Task RefreshCommentsAsync()
+        {
             try
             {
                 using var db = new AgileBoardContext();
                 var comments = await db.Comments
                     .Include(c => c.User)
-                    .Where(c => c.TaskID == task.TaskID)
+                    .Where(c => c.TaskID == _task.TaskID)
                     .OrderBy(c => c.CreatedAt)
                     .ToListAsync();
 
@@ -56,6 +72,7 @@ namespace Kurs_AgileDashbord.Views
                 }
                 else
                 {
+                    CommentsPanel.ItemsSource = null;
                     NoCommentsText.Visibility = Visibility.Visible;
                 }
             }
@@ -63,6 +80,61 @@ namespace Kurs_AgileDashbord.Views
             {
                 NoCommentsText.Text = "Ошибка загрузки комментариев";
                 NoCommentsText.Visibility = Visibility.Visible;
+            }
+        }
+
+        private async void OnAddCommentClick(object sender, RoutedEventArgs e)
+        {
+            var text = CommentTextBox.Text.Trim();
+            if (string.IsNullOrWhiteSpace(text)) return;
+
+            try
+            {
+                using var db = new AgileBoardContext();
+                var comment = new Comment
+                {
+                    TaskID = _task.TaskID,
+                    UserID = _currentUser.UserID,
+                    Text = text,
+                    CreatedAt = DateTime.Now
+                };
+
+                db.Comments.Add(comment);
+                await db.SaveChangesAsync();
+
+                CommentTextBox.Text = string.Empty;
+                await RefreshCommentsAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при добавлении комментария: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void OnDeleteTaskClick(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show($"Вы уверены, что хотите удалить задачу \"{_task.Title}\"?", 
+                "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    using var db = new AgileBoardContext();
+                    var taskToDelete = await db.Tasks.FindAsync(_task.TaskID);
+                    if (taskToDelete != null)
+                    {
+                        db.Tasks.Remove(taskToDelete);
+                        await db.SaveChangesAsync();
+
+                        DialogResult = true;
+                        Close();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при удалении задачи: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 

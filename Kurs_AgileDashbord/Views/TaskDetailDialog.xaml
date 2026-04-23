@@ -88,10 +88,36 @@
             <TextBlock x:Name="NoCommentsText" Text="Нет комментариев" Opacity="0.4" FontStyle="Italic"
                        Visibility="Collapsed"/>
 
-            <!-- Кнопка закрыть -->
-            <Button Content="Закрыть" Style="{StaticResource MaterialDesignOutlinedButton}"
-                    HorizontalAlignment="Right" Margin="0,16,0,0"
-                    Click="OnCloseClick"/>
+            <!-- Добавление комментария -->
+            <Grid Margin="0,16,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="CommentTextBox" Grid.Column="0"
+                         materialDesign:HintAssist.Hint="Написать комментарий..."
+                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                         TextWrapping="Wrap" MaxHeight="100" AcceptsReturn="True"
+                         VerticalScrollBarVisibility="Auto" Margin="0,0,8,0"/>
+                <Button Grid.Column="1" Content="Отправить" VerticalAlignment="Bottom"
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Click="OnAddCommentClick" Height="36"/>
+            </Grid>
+
+            <Separator Margin="0,16,0,16"/>
+
+            <!-- Кнопки снизу -->
+            <DockPanel Margin="0,0,0,8">
+                <!-- Кнопка удаления -->
+                <Button x:Name="DeleteTaskButton" Content="Удалить задачу" 
+                        Style="{StaticResource MaterialDesignFlatButton}" Foreground="#FF5252"
+                        HorizontalAlignment="Left" Click="OnDeleteTaskClick"/>
+
+                <!-- Кнопка закрыть -->
+                <Button Content="Закрыть" Style="{StaticResource MaterialDesignOutlinedButton}"
+                        HorizontalAlignment="Right"
+                        Click="OnCloseClick"/>
+            </DockPanel>
         </StackPanel>
     </ScrollViewer>
 </Window>

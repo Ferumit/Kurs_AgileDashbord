@@ -44,7 +44,7 @@ namespace Kurs_AgileDashbord
                 var vm = DataContext as MainViewModel;
                 if (vm == null) return;
 
-                var dialog = new TaskDetailDialog(task);
+                var dialog = new TaskDetailDialog(task, vm.CurrentUser);
                 dialog.Owner = this;
 
                 if (dialog.ShowDialog() == true)
